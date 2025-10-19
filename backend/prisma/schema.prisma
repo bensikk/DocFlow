@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum DocumentStatus {
+  IN_WORK  // "В роботі"
+  DONE_D3  // "Вже в Д-3"
+  ERROR    // "Помилка"
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  password  String
+  role      Role    @default(USER)
+  createdAt DateTime @default(now())
+  logs      Log[]
+}
+
+model Device {
+  id          Int     @id @default(autoincrement())
+  name        String
+  inventoryNo String  @unique
+  type        String
+  location    String?
+  paperLevel  Int     @default(100)
+  tonerLevel  Int     @default(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DocumentType {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model Document {
+  id                 Int             @id @default(autoincrement())
+  caseNumber         String
+  type               String
+  typeId             Int?
+  pages              Int
+  title              String
+  processNumber      String? // Номер провадження, когда тип = 'Справа'
+  status             DocumentStatus  @default(IN_WORK)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  action    String
+  meta      String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+}
