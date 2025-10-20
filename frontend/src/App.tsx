@@ -26,7 +26,6 @@ function AppInner(){
       <Nav onSelect={setView} active={view} />
       <div className="main">
         <div className="topbar">
-          <h3>Ласкаво просимо до Судової Системи</h3>
         </div>
   {view === 'dashboard' && <Dashboard />}
   {view === 'documents' && <Documents token={token} />}

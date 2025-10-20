@@ -63,6 +63,23 @@ app.get('/devices', authMiddleware, async (req: Request & { user?: any }, res: R
   res.json(devices);
 });
 
+// Update device
+app.put('/devices/:id', authMiddleware, requireRole('ADMIN'), async (req: Request & { user?: any }, res: Response) => {
+  const id = Number(req.params.id);
+  const data = req.body;
+  const device = await prisma.device.update({ where: { id }, data });
+  await prisma.log.create({ data: { userId: req.user.userId, action: 'update_device', meta: JSON.stringify({ id, data }) } });
+  res.json(device);
+});
+
+// Delete device
+app.delete('/devices/:id', authMiddleware, requireRole('ADMIN'), async (req: Request & { user?: any }, res: Response) => {
+  const id = Number(req.params.id);
+  await prisma.device.delete({ where: { id } });
+  await prisma.log.create({ data: { userId: req.user.userId, action: 'delete_device', meta: JSON.stringify({ id }) } });
+  res.json({ ok: true });
+});
+
 // Documents CRUD
 app.post('/documents', authMiddleware, async (req: Request & { user?: any }, res: Response) => {
   const { caseNumber, type, pages, processNumber } = req.body;
